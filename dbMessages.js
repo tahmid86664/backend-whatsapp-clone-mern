@@ -4,7 +4,8 @@ const whatsappSchema = mongoose.Schema({
     message: String,
     name: String,
     timeStamp: String,
-    received: Boolean
+    received: Boolean,
+    roomId: String
 });
 
 // this model is referred to collection

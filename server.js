@@ -2,6 +2,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Messages from './dbMessages.js';
+import Rooms from './dbRoom.js';
 import Pusher from 'pusher';
 import cors from 'cors';
 
@@ -36,9 +37,9 @@ mongoose.connect(connectionUrl, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true
-})
+});
 
-const db = mongoose.connection
+const db = mongoose.connection;
 
 db.once('open', ()=> {
     console.log("db is connected")
@@ -55,13 +56,14 @@ db.once('open', ()=> {
                 name: messageDetails.name,
                 message: messageDetails.message,
                 timeStamp: messageDetails.timeStamp,
-                received: messageDetails.received
+                received: messageDetails.received,
+                roomId: messageDetails.roomId
             }); // first is channel, second is event, third is data
         } else {
             console.log("Error triggering pusher");
         }
     })
-})
+});
 
 // ????
 
@@ -69,7 +71,7 @@ db.once('open', ()=> {
 // api routes
 app.get('/', (req, res) => {
     res.status(200).send("Hello World");
-})
+});
 
 app.get('/messages/sync', (req, res) => {
     Messages.find((err, data) => {
@@ -78,8 +80,8 @@ app.get('/messages/sync', (req, res) => {
         } else {
             res.status(200).send(data)
         }
-    })
-})
+    });
+});
 
 app.post('/messages/new', (req, res) => {
     const dbMessage = req.body
@@ -91,12 +93,35 @@ app.post('/messages/new', (req, res) => {
         } else {
             res.status(201).send(data)
         }
-    })
-})
+    });
+});
+
+app.get('/rooms/sync', (req, res) => {
+    Rooms.find((err, data) => {
+        if(err) {
+            res.status(500).send(err)
+        } else {
+            res.status(200).send(data)
+        }
+    });
+});
+
+app.post('/rooms/create', (req, res) => {
+    const dbRoom = req.body
+    // console.log(req.body)
+
+    Rooms.create(dbRoom, (err, data) => {
+        if(err) {
+            res.status(500).send(err)
+        } else {
+            res.status(201).send(data)
+        }
+    });
+});
 
 
 // listen
 app.listen(port, () => {
     console.log(`listenin on localhost: ${port}`);
-})
+});
 
