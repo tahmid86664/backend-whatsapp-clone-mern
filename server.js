@@ -54,6 +54,7 @@ db.once('open', ()=> {
             const messageDetails = change.fullDocument
             pusher.trigger('messages', 'inserted', {
                 name: messageDetails.name,
+                email: messageDetails.email,
                 message: messageDetails.message,
                 timeStamp: messageDetails.timeStamp,
                 received: messageDetails.received,
@@ -74,7 +75,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/messages/sync', (req, res) => {
-    Messages.find((err, data) => {
+    Messages.find().sort({timeStamp: 1}).exec((err, data) => {
         if(err) {
             res.status(500).send(err)
         } else {
